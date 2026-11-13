@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="240" height="60" viewBox="0 0 240 60">
+  <circle cx="30" cy="30" r="22" fill="#f4a259"/>
+  <path d="M6 38 q8 -8 16 0 t16 0 t16 0" fill="none" stroke="#1d6f8c" stroke-width="4" stroke-linecap="round"/>
+  <text x="62" y="27" font-family="Trebuchet MS, Arial, sans-serif" font-size="17" font-weight="bold" fill="#1f2a33">Postcards</text>
+  <text x="62" y="47" font-family="Trebuchet MS, Arial, sans-serif" font-size="15" fill="#1d6f8c">from the Coast</text>
+</svg>
