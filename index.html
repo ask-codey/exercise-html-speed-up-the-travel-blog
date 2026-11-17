@@ -19,6 +19,9 @@
          They are shown at most 720 pixels wide.
       5. The big photo at the top: a <picture> with AVIF and WebP sources, and the JPEG <img> as the fallback.
          It is shown the full width of the window.
+      6. The trip map under the introduction: an image map with an <area> for each of the five stops in the
+         README's table (shape, coords, a link to that day's heading, and alt text), and the same five links
+         as a list of text links right under the map.
 
       No picture should load a file from images/originals/ when you're done.
     -->
@@ -46,9 +49,12 @@
           sunset I will be telling people about for years.
         </p>
 
+        <img src="images/trip-map.png" alt="Map of the coast road from Gull Point to the harbor, with the trip's five stops"
+             width="640" height="400" loading="lazy">
+
         <img src="images/wave.svg" alt="decorative wave divider">
 
-        <h2>Day 1: Gull Point Lighthouse</h2>
+        <h2 id="lighthouse">Day 1: Gull Point Lighthouse</h2>
         <p>
           The lighthouse keepers' cottage is a small museum now, and on Saturdays volunteers let you climb the 87
           steps to the lantern room. Bring a jacket: it is windy at the top, even in June.
@@ -58,7 +64,7 @@
           <figcaption>Gull Point Lighthouse, built in 1874. The tower is open on Saturdays from 10 to 4.</figcaption>
         </figure>
 
-        <h2>Day 1: The Tide Pools</h2>
+        <h2 id="tide-pools">Day 1: The Tide Pools</h2>
         <p>
           At low tide the rocks below the lighthouse turn into a row of tiny aquariums. Look, don't touch: the
           animals that live here are more fragile than they seem.
@@ -68,7 +74,7 @@
           <figcaption>Check a tide chart before you go: the pools only show up for about two hours.</figcaption>
         </figure>
 
-        <h2>Day 2: The Salty Gull Taco Stand</h2>
+        <h2 id="taco-stand">Day 2: The Salty Gull Taco Stand</h2>
         <p>
           A friend told me not to leave the coast without eating here, and she was right. The fish is caught that
           morning, and the salsa is made in a bucket the size of a beach ball.
@@ -78,7 +84,7 @@
           <figcaption>Lunch on day 2. Get there before noon: by 12:30 the line reaches the parking lot.</figcaption>
         </figure>
 
-        <h2>Day 3: Kayaking the Bay</h2>
+        <h2 id="kayaking">Day 3: Kayaking the Bay</h2>
         <p>
           The rental shack at the harbor opens at 8, and the water is calmest before 10. We paddled out to the
           kelp beds and a harbor seal followed us most of the way back.
@@ -88,7 +94,7 @@
           <figcaption>Two-person kayaks rent for $45 for two hours, life jackets included.</figcaption>
         </figure>
 
-        <h2>Day 3: The Sunset</h2>
+        <h2 id="sunset">Day 3: The Sunset</h2>
         <p>
           We drove back up to the point for the last evening. Nobody said a word for twenty minutes.
         </p>

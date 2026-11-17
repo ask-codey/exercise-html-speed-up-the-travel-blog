@@ -1,4 +1,4 @@
-// Checks the travel blog's pictures: alt text, sizes, loading, srcset and the picture element.
+// Checks the travel blog's pictures: alt text, sizes, loading, srcset, the picture element and the trip map's image map.
 // Run it with: npm test (run npm install once first). You don't need to change this file.
 const nodeTest = require('node:test');
 
@@ -28,6 +28,21 @@ const logo = () => page.querySelector('header a img');
 const wave = () => all('img').find((img) => (img.getAttribute('src') || '').includes('wave'));
 const hero = () => page.querySelector('main img');
 const photos = () => all('figure img');
+
+// The trip map's five stops, as the README's table gives them: each area's link, shape and coords.
+const STOPS = [
+  { href: '#lighthouse', shape: 'circle', coords: '120,100,50', name: 'Gull Point Lighthouse' },
+  { href: '#tide-pools', shape: 'rect', coords: '60,190,200,260', name: 'the tide pools' },
+  { href: '#taco-stand', shape: 'rect', coords: '300,200,420,280', name: 'the taco stand' },
+  { href: '#kayaking', shape: 'poly', coords: '440,290,600,280,620,380,460,390', name: 'the harbor' },
+  { href: '#sunset', shape: 'circle', coords: '250,60,40', name: 'the sunset lookout' },
+];
+const tripMap = () => all('img').find((img) => (img.getAttribute('src') || '').includes('trip-map'));
+// The map the trip map's usemap names: "#trip-map" finds <map name="trip-map">.
+const mapOf = (img) => {
+  const ref = (img && img.getAttribute('usemap')) || '';
+  return ref.startsWith('#') ? all('map').find((map) => map.getAttribute('name') === ref.slice(1)) : undefined;
+};
 
 // Every address in a srcset: "images/a-480.jpg 480w, images/a-960.jpg 960w" gives the two addresses.
 const candidates = (srcset) =>
@@ -151,4 +166,39 @@ test('13) the page passes the HTML validator', async () => {
   const problems = report.results.flatMap((result) => result.messages)
     .map((message) => `line ${message.line}: ${message.message} (${message.ruleId})`);
   assert.deepEqual(problems, [], `The validator found:\n${problems.join('\n')}`);
+});
+
+test('14) the trip map uses an image map', () => {
+  const img = tripMap();
+  assert.ok(img, 'Keep the trip map (images/trip-map.png) under the introduction: step 6 turns it into an image map.');
+  const ref = img.getAttribute('usemap');
+  assert.ok(ref, 'Give the trip map a usemap attribute that names its map, such as usemap="#trip-map".');
+  assert.ok(ref.startsWith('#'), `usemap="${ref}" needs a # in front of the map's name: usemap="#${ref}".`);
+  assert.ok(mapOf(img), `usemap="${ref}" names a map the page doesn't have. Add a <map> whose name is "${ref.slice(1)}", spelled exactly the same.`);
+});
+
+test('15) every stop on the map is an area with its shape, coords, link and alt text', () => {
+  const map = mapOf(tripMap());
+  assert.ok(map, 'Test 14 comes first: the trip map needs a usemap that names a <map> on the page.');
+  const areas = [...map.querySelectorAll('area')];
+  for (const stop of STOPS) {
+    const area = areas.find((each) => each.getAttribute('href') === stop.href);
+    assert.ok(area, `The map has no <area> that links to ${stop.href} (${stop.name}). The README's table has each stop's shape and coords.`);
+    const shape = (area.getAttribute('shape') || 'rect').toLowerCase();
+    assert.equal(shape, stop.shape, `The area for ${stop.name} is shape="${shape}". The README's table says shape="${stop.shape}".`);
+    const coords = (area.getAttribute('coords') || '').replace(/\s+/g, '');
+    assert.equal(coords, stop.coords,
+      `The area for ${stop.name} has coords="${area.getAttribute('coords') || ''}". The README's table gives coords="${stop.coords}".`);
+    const alt = (area.getAttribute('alt') || '').trim();
+    assert.ok(alt, `The area for ${stop.name} needs alt text that says where it goes: a screen reader reads it as the link's name.`);
+    assert.ok(!/^(rect|circle|poly|area|link|click here)$/i.test(alt), `alt="${alt}" on the area for ${stop.name} doesn't say where the link goes.`);
+  }
+});
+
+test('16) the same five links are on the page as text', () => {
+  for (const stop of STOPS) {
+    const link = all(`a[href="${stop.href}"]`).find((a) => a.textContent.trim());
+    assert.ok(link,
+      `Under the map, add a text link to ${stop.href} (${stop.name}). The map's spots are invisible and don't shrink on a phone, so the same links go on the page as text too.`);
+  }
 });
