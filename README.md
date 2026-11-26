@@ -2,7 +2,7 @@
 
 Exercise code for the lesson **Exercise: Speed Up the Travel Blog** in the HTML in Depth course on [ask-codey.com](https://www.ask-codey.com).
 
-Marisol's travel blog, *Postcards from the Coast*, loads six photos straight from her phone, several megabytes each, and most of them have no useful alt text. You'll change only `index.html`: alt text by purpose, width and height, lazy loading, `srcset` and `sizes`, a `<picture>` element for the big photo at the top, and an image map that makes each stop on Marisol's trip map a link. Then you'll measure how much lighter the page got. Tests check each step.
+Marisol's travel blog, *Postcards from the Coast*, loads six photos straight from her phone, several megabytes each, and most of them have no useful alt text. You'll change only `index.html`: alt text by purpose, width and height, lazy loading, `srcset` and `sizes`, a `<picture>` element for the big photo at the top, an image map that makes each stop on Marisol's trip map a link, and a small *trip at a glance* drawn in SVG, with shading. Then you'll measure how much lighter the page got. Tests check each step.
 
 ## What's here
 
@@ -42,7 +42,7 @@ Before you change anything, measure how heavy the page is:
 
 ## What to do
 
-Follow the six steps in the comment at the top of `index.html`, running the tests after each one.
+Follow the eight steps in the comment at the top of `index.html`, running the tests after each one.
 
 1. **Alt text by purpose.** Each photo's alt text says what the photo shows, in a short sentence, without "image of". The logo is a link, so its alt text says where it goes. The wave is decoration, so its alt is empty: `alt=""`. A caption and its photo's alt text say different things.
 2. **Width and height** on every `<img>`, from the table above. For the photos, use the size of the 1600 copy.
@@ -60,6 +60,16 @@ Follow the six steps in the comment at the top of `index.html`, running the test
    | The sunset lookout | `circle` | `250,60,40` | `#sunset` |
 
    The coords are pixels of the map at its full size, 640 by 400, counted from its top-left corner. Each day's heading already has its `id`.
+7. **The trip at a glance, drawn in SVG.** Right under the byline, before the introduction, an inline `<svg>` 600 pixels wide and 80 tall, on a grid of `0 0 600 80`. It means something, so a screen reader reads it as one picture: `role="img"` on the `<svg>`, and a `<title>` as its first element that says what it shows, such as *The trip at a glance: three days on the coast road, from Gull Point to the harbor*. Inside it:
+
+   | Part | Element | Its numbers |
+   |---|---|---|
+   | The road | `<line>` | from 60,30 to 540,30, with `stroke="#1d6f8c"` and `stroke-width="6"` |
+   | Day 1, Day 2, Day 3 | three `<circle>`s | centered at 60,30, 300,30 and 540,30, each with a radius of 14, filled `#f4a259` |
+   | Their labels | three `<text>`s | *Day 1*, *Day 2* and *Day 3*, at `x` 60, 300 and 540 and `y` 70, with `text-anchor="middle"` |
+
+   Drawn in the page, it costs no request at all.
+8. **Shading for the trip at a glance.** At the start of the strip's `<svg>`, add a `<defs>` holding a `<radialGradient>` with the `id` `sun` (two stops: `#fff3b0` at 0% and `#f4a259` at 100%) and a `<filter>` with the `id` `lift` holding an `<feDropShadow>` (`dx="2"`, `dy="3"`, `stdDeviation="2"`). Then give each day's circle `fill="url(#sun)"` and `filter="url(#lift)"`.
 
 ## Check your work
 
@@ -81,6 +91,7 @@ Reload the page with the Network panel open, as before. Compare the **transferre
 - [ ] Each alt text describes what you see in that photo. Read them aloud with the photos hidden: does the post still make sense?
 - [ ] The taco stand's alt text includes the words on its sign.
 - [ ] Nothing on the page jumps down when a photo arrives (try the Network panel's **Slow 4G** setting).
+- [ ] The trip at a glance stays sharp when you zoom the browser in, and each day's circle glows from its middle and sits on a soft shadow.
 - [ ] On a wide window, moving the pointer over each stop on the trip map turns it into a hand, and clicking it jumps to that day. Then make the window narrow, so the map shrinks, and try again: the spots no longer line up, which is why the text links are there.
 
 ## Tips
@@ -90,6 +101,7 @@ Reload the page with the Network panel open, as before. Compare the **transferre
 - Inside a `<picture>`, the `<source>` elements come first and the `<img>` comes last. The `alt`, `width`, `height` and `fetchpriority` go on the `<img>`.
 - When a test says a file isn't in the folder, compare the spelling with the file names in `images/`: `tide-pool`, with a hyphen.
 - `usemap` is the map's name with a `#` in front: `usemap="#trip-map"` finds `<map name="trip-map">`. An `<area>` has no closing tag, and its `coords` are numbers with commas between them and no spaces. The lesson *Clickable Regions of a Picture: Image Maps* shows all three shapes.
+- SVG is fussier than HTML: close every element (`<circle ... />`), and write `viewBox` with a capital B. *Pictures Made of Code: SVG* has every shape, and *Shading and Shadows in SVG: Gradients and Filters* has `<defs>` and `url(#id)`.
 
 ## Hand it in
 

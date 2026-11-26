@@ -1,4 +1,4 @@
-// Checks the travel blog's pictures: alt text, sizes, loading, srcset, the picture element and the trip map's image map.
+// Checks the travel blog's pictures: alt text, sizes, loading, srcset, the picture element, the trip map's image map, and the trip at a glance drawn in SVG.
 // Run it with: npm test (run npm install once first). You don't need to change this file.
 const nodeTest = require('node:test');
 
@@ -200,5 +200,73 @@ test('16) the same five links are on the page as text', () => {
     const link = all(`a[href="${stop.href}"]`).find((a) => a.textContent.trim());
     assert.ok(link,
       `Under the map, add a text link to ${stop.href} (${stop.name}). The map's spots are invisible and don't shrink on a phone, so the same links go on the page as text too.`);
+  }
+});
+
+// The trip at a glance (steps 7 and 8): the inline <svg> right under the byline. SVG's element names have capitals
+// (radialGradient, feDropShadow), and not every HTML reader keeps them, so its elements are found by name, ignoring case.
+const strip = () => all('article svg')[0];
+const inside = (svg, name) => [...svg.querySelectorAll('*')].filter((element) => element.localName.toLowerCase() === name.toLowerCase());
+const DAYS = [{ x: '60', label: 'Day 1' }, { x: '300', label: 'Day 2' }, { x: '540', label: 'Day 3' }];
+// The id a url(#id) value names: "url(#sun)" gives "sun".
+const idIn = (value) => ((value || '').match(/^url\(\s*#([^)\s]+)\s*\)$/) || [])[1];
+
+test('17) the trip at a glance: an inline svg under the byline, 600 by 80 on a 0 0 600 80 grid', () => {
+  const svg = strip();
+  assert.ok(svg, 'Right under the byline, add an inline <svg> for the trip at a glance (README step 7).');
+  assert.equal(page.querySelector('.byline').nextElementSibling, svg,
+    'Put the trip at a glance right under the byline, before the introduction.');
+  assert.equal(svg.getAttribute('width'), '600', 'The strip is 600 pixels wide: width="600".');
+  assert.equal(svg.getAttribute('height'), '80', 'The strip is 80 pixels tall: height="80".');
+  assert.equal((svg.getAttribute('viewBox') || '').trim().replace(/\s+/g, ' '), '0 0 600 80',
+    'Give the strip its own grid, viewBox="0 0 600 80" (a capital B in viewBox).');
+});
+
+test('18) the trip at a glance: read as one picture, with a title', () => {
+  const svg = strip();
+  assert.ok(svg, 'Test 17 comes first: add the strip\'s <svg>.');
+  assert.equal(svg.getAttribute('role'), 'img', 'The strip means something, so a screen reader should read it as one picture: role="img" on the <svg>.');
+  const title = svg.firstElementChild;
+  assert.ok(title && title.localName === 'title' && title.textContent.trim().split(/\s+/).length >= 3,
+    'Make a <title> the first thing inside the <svg>, saying what the strip shows, such as "The trip at a glance: three days on the coast road".');
+});
+
+test('19) the trip at a glance: the road, three days and their labels', () => {
+  const svg = strip();
+  assert.ok(svg, 'Test 17 comes first: add the strip\'s <svg>.');
+  const road = inside(svg, 'line').find((line) => line.getAttribute('x1') === '60' && line.getAttribute('y1') === '30'
+    && line.getAttribute('x2') === '540' && line.getAttribute('y2') === '30');
+  assert.ok(road, 'Draw the road as a <line> from 60,30 to 540,30: x1="60" y1="30" x2="540" y2="30".');
+  assert.ok(road.getAttribute('stroke') && road.getAttribute('stroke') !== 'none',
+    'A line shows only with a stroke: give the road stroke="#1d6f8c" and a stroke-width.');
+  const circles = inside(svg, 'circle');
+  const texts = inside(svg, 'text');
+  for (const day of DAYS) {
+    assert.ok(circles.some((c) => c.getAttribute('cx') === day.x && c.getAttribute('cy') === '30' && c.getAttribute('r') === '14'),
+      `${day.label} needs a <circle> centered at ${day.x},30 with a radius of 14: cx="${day.x}" cy="30" r="14".`);
+    assert.ok(texts.some((t) => t.textContent.trim() === day.label && t.getAttribute('x') === day.x),
+      `Under its circle, add <text x="${day.x}" y="70" text-anchor="middle">${day.label}</text>.`);
+  }
+});
+
+test('20) the trip at a glance: each day shaded with a gradient and lifted by a shadow', () => {
+  const svg = strip();
+  assert.ok(svg, 'Test 17 comes first: add the strip\'s <svg>.');
+  const defs = inside(svg, 'defs')[0];
+  assert.ok(defs, 'Add a <defs> at the start of the strip\'s <svg>, for the gradient and the filter (README step 8).');
+  const gradients = [...inside(defs, 'radialGradient'), ...inside(defs, 'linearGradient')];
+  assert.ok(gradients.some((g) => g.id && inside(g, 'stop').length >= 2),
+    'Inside <defs>, add a <radialGradient> with an id and two <stop> elements, from #fff3b0 to #f4a259.');
+  const filters = inside(defs, 'filter').filter((f) => f.id && inside(f, 'feDropShadow').length > 0);
+  assert.ok(filters.length, 'Inside <defs>, add a <filter> with an id, holding an <feDropShadow>.');
+  for (const day of DAYS) {
+    const circle = inside(svg, 'circle').find((c) => c.getAttribute('cx') === day.x);
+    if (!circle) assert.fail('Test 19 comes first: each day needs its circle.');
+    const fill = idIn(circle.getAttribute('fill'));
+    assert.ok(fill && gradients.some((g) => g.id === fill),
+      `${day.label}'s circle is filled with the gradient by its id: fill="url(#${gradients[0]?.id || 'sun'})".`);
+    const lift = idIn(circle.getAttribute('filter'));
+    assert.ok(lift && filters.some((f) => f.id === lift),
+      `${day.label}'s circle is lifted by the drop shadow by its id: filter="url(#${filters[0]?.id || 'lift'})".`);
   }
 });

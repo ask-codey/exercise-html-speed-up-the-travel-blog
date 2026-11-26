@@ -22,6 +22,10 @@
       6. The trip map under the introduction: an image map with an <area> for each of the five stops in the
          README's table (shape, coords, a link to that day's heading, and alt text), and the same five links
          as a list of text links right under the map.
+      7. The trip at a glance, right under the byline: an inline <svg> 600 by 80 on a 0 0 600 80 grid, read as one
+         picture (role="img" and a <title>), with a line for the road, a circle for each day and its label.
+      8. Shading for the trip at a glance: a <defs> with a radial gradient and a drop-shadow filter, used by each
+         day's circle with url(#id).
 
       No picture should load a file from images/originals/ when you're done.
     -->
